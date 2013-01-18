@@ -33,6 +33,7 @@ var STACK_BLUR_RADIUS = 10;
  * Begin shadowboxing code
  */
 var mediaStream, video, rawCanvas, rawContext, shadowCanvas, arrowCanvas, shadowContext, arrowContext, background = null;
+var arrow1, arrow2, arrow3, arrow4 = null;
 var kinect, kinectSocket = null;
 
 var started = false;
@@ -93,31 +94,31 @@ function initializeDOMElements() {
     arrowCanvas.style.display = SHOW_SHADOW ? 'block' : 'none';
     document.getElementById('capture').appendChild(arrowCanvas);
     arrowContext = arrowCanvas.getContext('2d');  
+
+    arrow1 = new Image();
+    arrow1.src = "media/arrow_upper_left.png";
+
+    arrow2 = new Image();
+    arrow2.src = "media/arrow_lower_left.png";
+
+    arrow3 = new Image();
+    arrow3.src = "media/arrow_upper_right.png";
+
+    arrow4 = new Image();
+    arrow4.src = "media/arrow_lower_right.png";
 }
 
 /*
 * Draw arrows before rendering shadows
 */
 function drawArrows(){
-    arrowContext.beginPath();
-    arrowContext.rect(0, 0, 200, 200);
-    arrowContext.fillStyle = 'red';
-    arrowContext.fill();
+    arrowContext.drawImage(arrow1, 0, 0);
 
-    arrowContext.beginPath();
-    arrowContext.rect(0, 400, 200, 200);
-    arrowContext.fillStyle = 'yellow';
-    arrowContext.fill();
+    arrowContext.drawImage(arrow2, 0, 400);
 
-    arrowContext.beginPath();
-    arrowContext.rect(600, 0, 200, 200);
-    arrowContext.fillStyle = 'green';
-    arrowContext.fill();
+    arrowContext.drawImage(arrow3, 600, 0);
 
-    arrowContext.beginPath();
-    arrowContext.rect(600, 400, 200, 200);
-    arrowContext.fillStyle = 'blue';
-    arrowContext.fill();
+    arrowContext.drawImage(arrow4, 600, 400);
 }
 
 
