@@ -38,6 +38,9 @@ var kinect, kinectSocket = null;
 
 var started = false;
 
+//the color of the shadow
+var color = [0, 0, 0];
+
 $(document).ready(function() {
     initializeDOMElements();
 
@@ -55,6 +58,10 @@ $(document).ready(function() {
             renderShadow();
         }
     });
+
+    $('#watched_input').bind('change', function(){
+        console.log("changed!!!!!!!!!!!");
+    })
 });
 
 /*
@@ -94,33 +101,17 @@ function initializeDOMElements() {
     arrowCanvas.style.display = SHOW_SHADOW ? 'block' : 'none';
     document.getElementById('capture').appendChild(arrowCanvas);
     arrowContext = arrowCanvas.getContext('2d');  
-
-    arrow1 = new Image();
-    arrow1.src = "media/arrow_upper_left.png";
-
-    arrow2 = new Image();
-    arrow2.src = "media/arrow_lower_left.png";
-
-    arrow3 = new Image();
-    arrow3.src = "media/arrow_upper_right.png";
-
-    arrow4 = new Image();
-    arrow4.src = "media/arrow_lower_right.png";
 }
 
 /*
 * Draw arrows before rendering shadows
 */
 function drawArrows(){
-    arrowContext.drawImage(arrow1, 0, 0);
-
-    arrowContext.drawImage(arrow2, 0, 400);
-
-    arrowContext.drawImage(arrow3, 600, 0);
-
-    arrowContext.drawImage(arrow4, 600, 400);
+    arrowContext.beginPath();
+    arrowContext.rect(0, 0, 200, 200);
+    arrowContext.fillStyle = '#d90467';
+    arrowContext.fill();
 }
-
 
 /*
  * Starts the connection to the Kinect
@@ -255,6 +246,7 @@ function renderShadow() {
 
 function getShadowData() {
     var pixelData = getCameraData();
+    var pixel_check = false;
 
     // Each pixel gets four array indices: [r, g, b, alpha]
     for (var i=0; i<pixelData.data.length; i=i+4) {
@@ -270,9 +262,14 @@ function getShadowData() {
         
         if (distance >= SHADOW_THRESHOLD) {
             // foreground, show shadow
-            pixelData.data[i] = 0;
-            pixelData.data[i+1] = 0;
-            pixelData.data[i+2] = 0;
+            pixelData.data[i] = color[0];
+            pixelData.data[i+1] = color[1];
+            pixelData.data[i+2] = color[2];
+
+            if(!pixel_check && checkTouched(i)){
+                pixel_check = true;
+            }
+            
         } else {
             // background
             
@@ -286,8 +283,33 @@ function getShadowData() {
             pixelData.data[i+3] = 0;
         }        
     }
+
+    if(pixel_check && ($('#watched_input').val()=='NO')){
+        console.log("true");
+        color[0] = 217;
+        color[1] = 4;
+        color[2] = 103;
+        $('#watched_input').val('YES');
+    }
+    else if(!pixel_check && ($('#watched_input').val()=='YES')){
+        color[0] = 0;
+        color[1] = 0;
+        color[2] = 0;
+        $('#watched_input').val('NO');
+    }
     
     return pixelData; 
+}
+
+function checkTouched(i){
+    var x = (i/4)%800;
+    var y = (i/4)/800;
+
+    if(x < 200 && y < 200){
+        return true;
+    }
+
+    return false;
 }
 
 function updateBackground(i, rCurrent, gCurrent, bCurrent, rBackground, gBackground, bBackground) {
