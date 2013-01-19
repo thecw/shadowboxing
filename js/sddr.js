@@ -338,7 +338,7 @@ function getShadowData() {
     }
 
     if(temp_touched != touched){
-        console.log("new touched!!! " + temp_touched);
+        $("#touch_display").text("Touching square "+temp_touched);
         touched = temp_touched;
     }
 
