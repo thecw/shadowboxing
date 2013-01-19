@@ -28,15 +28,30 @@ var BACKGROUND_ALPHA = 0.05;
 // in the background subtraction. Change this radius to trade off noise for precision 
 var STACK_BLUR_RADIUS = 10; 
 
+//properties of the canvas
+var WIDTH = 800;
+var HEIGHT = 600;
+
+//length of the square
+var SQURE_LENGTH = 100;
+
+//some boundaries
+var boundary_y = (HEIGHT - SQURE_LENGTH) / 2;
+var boundary_x1 = (WIDTH / 3) - (SQURE_LENGTH / 2);
+var boundary_x2 = (WIDTH / 3) * 2 - (SQURE_LENGTH / 2);
 
 /*
  * Begin shadowboxing code
  */
-var mediaStream, video, rawCanvas, rawContext, shadowCanvas, arrowCanvas, shadowContext, arrowContext, background = null;
+var mediaStream, video, rawCanvas, rawContext, shadowCanvas, squareCanvas, shadowContext, squareContext, background = null;
 var arrow1, arrow2, arrow3, arrow4 = null;
 var kinect, kinectSocket = null;
 
 var started = false;
+
+//current touched square
+//0 means no square touched
+var touched = 0;
 
 //the color of the shadow
 var color = [0, 0, 0];
@@ -54,14 +69,10 @@ $(document).ready(function() {
     $('#background').click(function() {
         setBackground();
         if (!started) {
-            drawArrows();
+            drawSquares();
             renderShadow();
         }
     });
-
-    $('#watched_input').bind('change', function(){
-        console.log("changed!!!!!!!!!!!");
-    })
 });
 
 /*
@@ -74,8 +85,8 @@ function initializeDOMElements() {
     
     rawCanvas = document.createElement('canvas');
     rawCanvas.setAttribute('id', 'rawCanvas');
-    rawCanvas.setAttribute('width', 800);
-    rawCanvas.setAttribute('height', 600);
+    rawCanvas.setAttribute('width', WIDTH);
+    rawCanvas.setAttribute('height', HEIGHT);
     
     rawCanvas.style.display = SHOW_RAW ? 'block' : 'none';
     document.getElementById('capture').appendChild(rawCanvas);
@@ -86,31 +97,74 @@ function initializeDOMElements() {
     
     shadowCanvas = document.createElement('canvas');
     shadowCanvas.setAttribute('id', 'shadowCanvas');
-    shadowCanvas.setAttribute('width', 800);
-    shadowCanvas.setAttribute('height', 600);
+    shadowCanvas.setAttribute('width', WIDTH);
+    shadowCanvas.setAttribute('height', HEIGHT);
     shadowCanvas.style.display = SHOW_SHADOW ? 'block' : 'none';
     document.getElementById('capture').appendChild(shadowCanvas);
     shadowContext = shadowCanvas.getContext('2d');    
 
 
-    //another layer of canvas containing arrows
-    arrowCanvas = document.createElement('canvas');
-    arrowCanvas.setAttribute('id', 'arrowCanvas');
-    arrowCanvas.setAttribute('width', 800);
-    arrowCanvas.setAttribute('height', 600);
-    arrowCanvas.style.display = SHOW_SHADOW ? 'block' : 'none';
-    document.getElementById('capture').appendChild(arrowCanvas);
-    arrowContext = arrowCanvas.getContext('2d');  
+    //another layer of canvas containing squares
+    squareCanvas = document.createElement('canvas');
+    squareCanvas.setAttribute('id', 'squareCanvas');
+    squareCanvas.setAttribute('width', WIDTH);
+    squareCanvas.setAttribute('height', HEIGHT);
+    squareCanvas.style.display = SHOW_SHADOW ? 'block' : 'none';
+    document.getElementById('capture').appendChild(squareCanvas);
+    squareContext = squareCanvas.getContext('2d');  
 }
 
 /*
-* Draw arrows before rendering shadows
+* Draw squares before rendering shadows
 */
-function drawArrows(){
-    arrowContext.beginPath();
-    arrowContext.rect(0, 0, 200, 200);
-    arrowContext.fillStyle = '#d90467';
-    arrowContext.fill();
+function drawSquares(){
+    //square 3
+    squareContext.beginPath();
+    squareContext.rect(0, 0, SQURE_LENGTH, SQURE_LENGTH);
+    squareContext.fillStyle = '#FF6B6B';//
+    squareContext.fill();
+
+    //square 1
+    squareContext.beginPath();
+    squareContext.rect(0, HEIGHT - SQURE_LENGTH, SQURE_LENGTH, SQURE_LENGTH);
+    squareContext.fillStyle = '#4ECDC4';//
+    squareContext.fill();
+
+    //square 6
+    squareContext.beginPath();
+    squareContext.rect(WIDTH - SQURE_LENGTH, 0, SQURE_LENGTH, SQURE_LENGTH);
+    squareContext.fillStyle = '#C7F464';//
+    squareContext.fill();
+
+    //square 8
+    squareContext.beginPath();
+    squareContext.rect(WIDTH - SQURE_LENGTH, HEIGHT - SQURE_LENGTH, SQURE_LENGTH, SQURE_LENGTH);
+    squareContext.fillStyle = '#542437';//
+    squareContext.fill();
+
+    //square 2
+    squareContext.beginPath();
+    squareContext.rect(0, boundary_y, SQURE_LENGTH, SQURE_LENGTH);
+    squareContext.fillStyle = '#F56991';//
+    squareContext.fill();
+
+    //square 7
+    squareContext.beginPath();
+    squareContext.rect(WIDTH - SQURE_LENGTH, boundary_y, SQURE_LENGTH, SQURE_LENGTH);
+    squareContext.fillStyle = '#FF9900';//
+    squareContext.fill();
+
+    //square 4
+    squareContext.beginPath();
+    squareContext.rect(boundary_x1, 0, SQURE_LENGTH, SQURE_LENGTH);
+    squareContext.fillStyle = '#EDC951';//
+    squareContext.fill();
+
+    //square 5
+    squareContext.beginPath();
+    squareContext.rect(boundary_x2, 0, SQURE_LENGTH, SQURE_LENGTH);
+    squareContext.fillStyle = '#556270';//
+    squareContext.fill();
 }
 
 /*
@@ -246,7 +300,7 @@ function renderShadow() {
 
 function getShadowData() {
     var pixelData = getCameraData();
-    var pixel_check = false;
+    var temp_touched = 0;
 
     // Each pixel gets four array indices: [r, g, b, alpha]
     for (var i=0; i<pixelData.data.length; i=i+4) {
@@ -266,10 +320,9 @@ function getShadowData() {
             pixelData.data[i+1] = color[1];
             pixelData.data[i+2] = color[2];
 
-            if(!pixel_check && checkTouched(i)){
-                pixel_check = true;
+            if(temp_touched == 0){
+                temp_touched = checkTouched(i);
             }
-            
         } else {
             // background
             
@@ -284,19 +337,24 @@ function getShadowData() {
         }        
     }
 
-    if(pixel_check && ($('#watched_input').val()=='NO')){
-        console.log("true");
-        color[0] = 217;
-        color[1] = 4;
-        color[2] = 103;
-        $('#watched_input').val('YES');
+    if(temp_touched != touched){
+        console.log("new touched!!! " + temp_touched);
+        touched = temp_touched;
     }
-    else if(!pixel_check && ($('#watched_input').val()=='YES')){
-        color[0] = 0;
-        color[1] = 0;
-        color[2] = 0;
-        $('#watched_input').val('NO');
-    }
+
+    // if(pixel_check && ($('#watched_input').val()=='NO')){
+    //     console.log("true");
+    //     color[0] = 217;
+    //     color[1] = 4;
+    //     color[2] = 103;
+    //     $('#watched_input').val('YES');
+    // }
+    // else if(!pixel_check && ($('#watched_input').val()=='YES')){
+    //     color[0] = 0;
+    //     color[1] = 0;
+    //     color[2] = 0;
+    //     $('#watched_input').val('NO');
+    // }
     
     return pixelData; 
 }
@@ -304,12 +362,52 @@ function getShadowData() {
 function checkTouched(i){
     var x = (i/4)%800;
     var y = (i/4)/800;
+    var broundary
 
-    if(x < 200 && y < 200){
-        return true;
+    if(x > SQURE_LENGTH && x < WIDTH - SQURE_LENGTH){
+        if(y > SQURE_LENGTH){
+            return 0;
+        }
+
+        else if(x > boundary_x1 && x < (boundary_x1 + SQURE_LENGTH)){
+            return 4;
+        }
+
+        else if(x > boundary_x2 && x < (boundary_x2 + SQURE_LENGTH)){
+            return 5;
+        }
     }
 
-    return false;
+    else if(x < SQURE_LENGTH){
+        if(y < SQURE_LENGTH){
+            return 3;
+        }
+
+        else if(y > boundary_y && y < (boundary_y + SQURE_LENGTH)){
+            return 2;
+        }
+
+        else if(y > (HEIGHT - SQURE_LENGTH)){
+            return 1;
+        }
+
+    }
+
+    else if(x > WIDTH - SQURE_LENGTH){
+        if(y < SQURE_LENGTH){
+            return 6;
+        }
+
+        else if(y > boundary_y && y < (boundary_y + SQURE_LENGTH)){
+            return 7;
+        }
+
+        else if(y > (HEIGHT - SQURE_LENGTH)){
+            return 8;
+        }
+    }
+
+    return 0;
 }
 
 function updateBackground(i, rCurrent, gCurrent, bCurrent, rBackground, gBackground, bBackground) {
