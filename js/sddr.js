@@ -56,6 +56,16 @@ var touched = 0;
 //the color of the shadow
 var color = [0, 0, 0];
 
+//sound initiation
+var noteA = new Audio("audio/Agood.mp3");
+var noteB = new Audio("audio/Bgood.mp3");
+var noteC = new Audio("audio/Cgood.mp3");
+var noteD = new Audio("audio/Dgood.mp3");
+var noteE = new Audio("audio/Egood.mp3");
+var noteF = new Audio("audio/FSharpGood.mp3");
+var noteG = new Audio("audio/Egood.mp3");
+var noteDhigh = new Audio("audio/Dhighgood.mp3");
+
 $(document).ready(function() {
     initializeDOMElements();
 
@@ -340,21 +350,19 @@ function getShadowData() {
     if(temp_touched != touched){
         $("#touch_display").text("Touching square "+temp_touched);
         touched = temp_touched;
-    }
 
-    // if(pixel_check && ($('#watched_input').val()=='NO')){
-    //     console.log("true");
-    //     color[0] = 217;
-    //     color[1] = 4;
-    //     color[2] = 103;
-    //     $('#watched_input').val('YES');
-    // }
-    // else if(!pixel_check && ($('#watched_input').val()=='YES')){
-    //     color[0] = 0;
-    //     color[1] = 0;
-    //     color[2] = 0;
-    //     $('#watched_input').val('NO');
-    // }
+        switch(temp_touched){
+            case 1: noteD.play(); $('#note').text("note D!"); break;
+            case 2: noteE.play(); $('#note').text("note E!"); break;
+            case 3: noteF.play(); $('#note').text("note F!"); break;
+            case 4: noteG.play(); $('#note').text("note G!"); break;
+            case 5: noteA.play(); $('#note').text("note A!"); break;
+            case 6: noteB.play(); $('#note').text("note B!"); break;
+            case 7: noteC.play(); $('#note').text("note C!"); break;
+            case 8: noteDhigh.play(); $('#note').text("note D High!"); break;
+            default: break;
+        }
+    }
     
     return pixelData; 
 }
