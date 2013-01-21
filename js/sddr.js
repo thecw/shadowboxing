@@ -101,6 +101,7 @@ $(document).ready(function() {
         setBackground();
         if (!started) {
             $('#start_screen').hide();
+            $('#sidebar').show();
             drawBackground();
             drawSquares();
             renderShadow();
@@ -415,6 +416,7 @@ function getShadowData() {
 
     if(temp_touched != touched){
         touched = temp_touched;
+        //$('#touch_debug').text("Touched "+touched+"!");
         if(current_sound!=null){
             current_sound.pause();
         }
@@ -441,8 +443,8 @@ function getShadowData() {
 }
 
 function checkTouched(i){
-    var x = (i/4)%800;
-    var y = (i/4)/800;
+    var x = (i/4)%WIDTH;
+    var y = (i/4)/WIDTH;
     var broundary
 
     if(x > SQURE_LENGTH && x < WIDTH - SQURE_LENGTH){
