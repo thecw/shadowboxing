@@ -16,36 +16,82 @@
             #backgroundCanvas{
                 position: absolute;
                 z-index: 0;
-                top: 30px;
+                top: 0px;
                 left: 0px;
             }
 
             #shadowCanvas{
                 position: absolute;
                 z-index: 5;
-                top: 30px;
+                top: 0px;
                 left: 0px;
             }
 
             #patternCanvas{
                 position: absolute;
                 z-index: 3;
-                top: 30px;
+                top: 0px;
                 left: 0px;
             }
 
             #squareCanvas{
                 position: absolute;
                 z-index: 7;
-                top: 30px;
+                top: 0px;
                 left: 0px;
             }
+
+            #start_screen{
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 1000px;
+                height: 600px;
+                background: url(media/bg_shadowtunes.jpg);
+            }
+
+           .button {
+            background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ffc477), color-stop(1, #fb9e25) );
+            background:-moz-linear-gradient( center top, #ffc477 5%, #fb9e25 100% );
+            filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffc477', endColorstr='#fb9e25');
+            background-color:#ffc477;
+            -moz-border-radius:6px;
+            -webkit-border-radius:6px;
+            border-radius:6px;
+            border:1px solid #eeb44f;
+            display:inline-block;
+            color:#ffffff;
+            font-family:arial;
+            font-size:20px;
+            font-weight:bold;
+            padding:6px 24px;
+            text-decoration:none;
+            text-shadow:1px 1px 0px #cc9f52;
+           }.button:hover {
+            background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #fb9e25), color-stop(1, #ffc477) );
+            background:-moz-linear-gradient( center top, #fb9e25 5%, #ffc477 100% );
+            filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#fb9e25', endColorstr='#ffc477');
+            background-color:#fb9e25;
+           }.button:active {
+            position:relative;
+            top:1px;
+           }
+
+           #start{
+                position: absolute;
+                top: 380px;
+                left: 430px;
+                z-index: 100;
+           }
         </style>
     </head>
 
     <body>
-        <div id="capture">
-            <button id="background">Start!</button>      
+        <div id="start_screen">
+            <button id="start" class="button">Start!</button> 
+        </div>
+
+        <div id="capture">     
         </div> 
     </body>
 </html>

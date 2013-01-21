@@ -42,7 +42,7 @@ var boundary_x2 = (WIDTH / 3) * 2 - (SQURE_LENGTH / 2);
 
 //background image
 var bg_image = null;
-var BG_IMAGE_PATH = "media/bg_piano.jpg";
+var BG_IMAGE_PATH = "media/bg_shadowtunes.jpg";
 
 //circle images
 var circles_src = ["media/circle1.png", "media/circle2.png", "media/circle3.png", "media/circle4.png", "media/circle5.png", "media/circle6.png", "media/circle7.png", "media/circle8.png"];
@@ -68,6 +68,7 @@ var started = false;
 //current touched square
 //0 means no square touched
 var touched = 0;
+var current_sound = null;
 
 //the color of the shadow
 var color = [48, 120, 230];
@@ -85,7 +86,7 @@ var noteDhigh = new Audio("audio/Dhighgood.mp3");
 $(document).ready(function() {
     initializeDOMElements();
 
-    $("#background").attr('disabled', true);
+    $("#start").attr('disabled', true);
 	if (INPUT == "kinectdepth" || INPUT == "kinectrgb") {
 		setUpKinect();
 	} else if (INPUT == "webcam") {
@@ -96,9 +97,10 @@ $(document).ready(function() {
         imageReady = true;
     }
 
-    $('#background').click(function() {
+    $('#start').click(function() {
         setBackground();
         if (!started) {
+            $('#start_screen').hide();
             drawBackground();
             drawSquares();
             renderShadow();
@@ -282,8 +284,8 @@ function setUpWebCam() {
     window.URL = window.URL || window.webkitURL;
     
     video.addEventListener('canplay', function() {
-        if ($('#background').attr('disabled')) {
-            $('#background').attr('disabled', false);
+        if ($('#start').attr('disabled')) {
+            $('#start').attr('disabled', false);
         }
     }, false);
     
@@ -412,20 +414,27 @@ function getShadowData() {
     }
 
     if(temp_touched != touched){
-        //$("#touch_display").text("Touching square "+temp_touched);
         touched = temp_touched;
-
+        if(current_sound!=null){
+            current_sound.pause();
+        }
+        
         switch(temp_touched){
-            case 1: noteD.play(); console.log("note D!"); break;
-            case 2: noteE.play(); console.log("note E!"); break;
-            case 3: noteF.play(); console.log("note F!"); break;
-            case 4: noteG.play(); console.log("note G!"); break;
-            case 5: noteA.play(); console.log("note A!"); break;
-            case 6: noteB.play(); console.log("note B!"); break;
-            case 7: noteC.play(); console.log("note C!"); break;
-            case 8: noteDhigh.play(); console.log("note D High!"); break;
+            case 1: current_sound = noteD; console.log("note D!"); break;
+            case 2: current_sound = noteE; console.log("note E!"); break;
+            case 3: current_sound = noteF; console.log("note F!"); break;
+            case 4: current_sound = noteG; console.log("note G!"); break;
+            case 5: current_sound = noteA; console.log("note A!"); break;
+            case 6: current_sound = noteB; console.log("note B!"); break;
+            case 7: current_sound = noteC; console.log("note C!"); break;
+            case 8: current_sound = noteDhigh; console.log("note D High!"); break;
             default: break;
         }
+
+        if(current_sound!=null){
+            current_sound.play();
+        }
+        
     }
     
     return pixelData; 
