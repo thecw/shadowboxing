@@ -13,26 +13,33 @@
                 left: 0px;
             }
 
-            #shadowCanvas{
+            #backgroundCanvas{
                 position: absolute;
                 z-index: 0;
                 top: 30px;
                 left: 0px;
             }
 
-            #squareCanvas{
+            #shadowCanvas{
                 position: absolute;
-                z-index: 2;
+                z-index: 5;
                 top: 30px;
                 left: 0px;
             }
 
-            #display{
+            #patternCanvas{
                 position: absolute;
+                z-index: 3;
                 top: 30px;
-                left: 840px;
+                left: 0px;
             }
 
+            #squareCanvas{
+                position: absolute;
+                z-index: 7;
+                top: 30px;
+                left: 0px;
+            }
         </style>
     </head>
 
@@ -40,9 +47,5 @@
         <div id="capture">
             <button id="background">Start!</button>      
         </div> 
-        <div id="display">
-            <h1 id="touch_display"></h1>   
-            <h3 id="note"></h3>
-        </div>
     </body>
 </html>

@@ -29,21 +29,37 @@ var BACKGROUND_ALPHA = 0.05;
 var STACK_BLUR_RADIUS = 10; 
 
 //properties of the canvas
-var WIDTH = 800;
+var WIDTH = 1000;
 var HEIGHT = 600;
 
 //length of the square
-var SQURE_LENGTH = 100;
+var SQURE_LENGTH = 120;
 
 //some boundaries
 var boundary_y = (HEIGHT - SQURE_LENGTH) / 2;
 var boundary_x1 = (WIDTH / 3) - (SQURE_LENGTH / 2);
 var boundary_x2 = (WIDTH / 3) * 2 - (SQURE_LENGTH / 2);
 
+//background image
+var bg_image = null;
+var BG_IMAGE_PATH = "media/bg_piano.jpg";
+
+//circle images
+var circles_src = ["media/circle1.png", "media/circle2.png", "media/circle3.png", "media/circle4.png", "media/circle5.png", "media/circle6.png", "media/circle7.png", "media/circle8.png"];
+var circles = [];
+
+//pattern image
+var pattern_image = null;
+var PATTERN_PATH = "media/dots1.png";
+var patten_colors = [[240, 9, 0], [240, 111, 20], [250, 241, 50], [122, 232, 85], [45, 226, 155], [82, 82, 228], [175, 32, 212]];
+
+var OVERLAY  = 0;   // 0 = foreground, 255 = background
+var imageReady = false;
+
 /*
  * Begin shadowboxing code
  */
-var mediaStream, video, rawCanvas, rawContext, shadowCanvas, squareCanvas, shadowContext, squareContext, background = null;
+var mediaStream, video, rawCanvas, rawContext, shadowCanvas, squareCanvas, backgroundCanvas, patternCanvas, shadowContext, squareContext, backgroundContext, patternContext, background = null;
 var arrow1, arrow2, arrow3, arrow4 = null;
 var kinect, kinectSocket = null;
 
@@ -54,7 +70,7 @@ var started = false;
 var touched = 0;
 
 //the color of the shadow
-var color = [0, 0, 0];
+var color = [48, 120, 230];
 
 //sound initiation
 var noteA = new Audio("audio/Agood.mp3");
@@ -76,9 +92,14 @@ $(document).ready(function() {
 		setUpWebCam();
 	}
 
+    pattern_image.onload = function() {
+        imageReady = true;
+    }
+
     $('#background').click(function() {
         setBackground();
         if (!started) {
+            drawBackground();
             drawSquares();
             renderShadow();
         }
@@ -113,15 +134,53 @@ function initializeDOMElements() {
     document.getElementById('capture').appendChild(shadowCanvas);
     shadowContext = shadowCanvas.getContext('2d');    
 
+    backgroundCanvas = document.createElement('canvas');
+    backgroundCanvas.setAttribute('id', 'backgroundCanvas');
+    backgroundCanvas.setAttribute('width', WIDTH);
+    backgroundCanvas.setAttribute('height', HEIGHT);
+    backgroundCanvas.style.display = 'block';
+    document.getElementById('capture').appendChild(backgroundCanvas);
+    backgroundContext = backgroundCanvas.getContext('2d');  
+
+    patternCanvas = document.createElement('canvas');
+    patternCanvas.setAttribute('id', 'patternCanvas');
+    patternCanvas.setAttribute('width', WIDTH);
+    patternCanvas.setAttribute('height', HEIGHT);
+    patternCanvas.style.display = 'none';
+    document.getElementById('capture').appendChild(patternCanvas);
+    patternContext = patternCanvas.getContext('2d');  
+
+    bg_image = new Image();
+    bg_image.src = BG_IMAGE_PATH;
+
+    var circle = null;
+    
+    for(var i = 0; i < 8; i++){
+        circle = new Image();
+        circle.src = circles_src[i];
+        circles.push(circle);
+    }
+
+    pattern_image = new Image();
+    pattern_image.src = PATTERN_PATH;
 
     //another layer of canvas containing squares
     squareCanvas = document.createElement('canvas');
     squareCanvas.setAttribute('id', 'squareCanvas');
     squareCanvas.setAttribute('width', WIDTH);
     squareCanvas.setAttribute('height', HEIGHT);
-    squareCanvas.style.display = SHOW_SHADOW ? 'block' : 'none';
+    squareCanvas.style.display = 'block';
     document.getElementById('capture').appendChild(squareCanvas);
     squareContext = squareCanvas.getContext('2d');  
+
+
+}
+
+/*
+* Draw background before rendering shadows
+*/
+function drawBackground(){
+    backgroundContext.drawImage(bg_image, 0, 0);
 }
 
 /*
@@ -129,52 +188,28 @@ function initializeDOMElements() {
 */
 function drawSquares(){
     //square 3
-    squareContext.beginPath();
-    squareContext.rect(0, 0, SQURE_LENGTH, SQURE_LENGTH);
-    squareContext.fillStyle = '#FF6B6B';//
-    squareContext.fill();
+    squareContext.drawImage(circles[2], 0, 0, SQURE_LENGTH, SQURE_LENGTH);
 
     //square 1
-    squareContext.beginPath();
-    squareContext.rect(0, HEIGHT - SQURE_LENGTH, SQURE_LENGTH, SQURE_LENGTH);
-    squareContext.fillStyle = '#4ECDC4';//
-    squareContext.fill();
+    squareContext.drawImage(circles[0], 0, HEIGHT - SQURE_LENGTH, SQURE_LENGTH, SQURE_LENGTH);
 
     //square 6
-    squareContext.beginPath();
-    squareContext.rect(WIDTH - SQURE_LENGTH, 0, SQURE_LENGTH, SQURE_LENGTH);
-    squareContext.fillStyle = '#C7F464';//
-    squareContext.fill();
-
+    squareContext.drawImage(circles[5], WIDTH - SQURE_LENGTH, 0, SQURE_LENGTH, SQURE_LENGTH);
+    
     //square 8
-    squareContext.beginPath();
-    squareContext.rect(WIDTH - SQURE_LENGTH, HEIGHT - SQURE_LENGTH, SQURE_LENGTH, SQURE_LENGTH);
-    squareContext.fillStyle = '#542437';//
-    squareContext.fill();
-
+    squareContext.drawImage(circles[7], WIDTH - SQURE_LENGTH, HEIGHT - SQURE_LENGTH, SQURE_LENGTH, SQURE_LENGTH);
+    
     //square 2
-    squareContext.beginPath();
-    squareContext.rect(0, boundary_y, SQURE_LENGTH, SQURE_LENGTH);
-    squareContext.fillStyle = '#F56991';//
-    squareContext.fill();
+    squareContext.drawImage(circles[1], 0, boundary_y, SQURE_LENGTH, SQURE_LENGTH);
 
     //square 7
-    squareContext.beginPath();
-    squareContext.rect(WIDTH - SQURE_LENGTH, boundary_y, SQURE_LENGTH, SQURE_LENGTH);
-    squareContext.fillStyle = '#FF9900';//
-    squareContext.fill();
+    squareContext.drawImage(circles[6], WIDTH - SQURE_LENGTH, boundary_y, SQURE_LENGTH, SQURE_LENGTH);
 
     //square 4
-    squareContext.beginPath();
-    squareContext.rect(boundary_x1, 0, SQURE_LENGTH, SQURE_LENGTH);
-    squareContext.fillStyle = '#EDC951';//
-    squareContext.fill();
+    squareContext.drawImage(circles[3], boundary_x1, 0, SQURE_LENGTH, SQURE_LENGTH);
 
     //square 5
-    squareContext.beginPath();
-    squareContext.rect(boundary_x2, 0, SQURE_LENGTH, SQURE_LENGTH);
-    squareContext.fillStyle = '#556270';//
-    squareContext.fill();
+    squareContext.drawImage(circles[4], boundary_x2, 0, SQURE_LENGTH, SQURE_LENGTH);
 }
 
 /*
@@ -299,7 +334,36 @@ function renderShadow() {
   }
   
   pixelData = getShadowData();
-  shadowContext.putImageData(pixelData, 0, 0);
+
+  // Drawing from our image onto the canvas
+  if (imageReady) {
+      // draw the image over the entire canvas
+      patternContext.drawImage(pattern_image, 0, 0);    
+      var pixels = patternContext.getImageData(0, 0, patternCanvas.width, patternCanvas.height);
+
+      // Now that the shadowContext has our jpeg painted, we can
+      // loop pixel by pixel and only show the parts where the shadow lies.
+      // 
+      // IMPORTANT: make sure that the width and height of your two
+      // canvases match. Otherwise, here be dragons!
+      for(var i = 0; i < pixelData.data.length; i=i+4) {
+          // i = red; i+1 = green; i+2 = blue; i+3 = alpha
+          if(pixelData.data[i] == OVERLAY && pixelData.data[i+1] == OVERLAY && pixelData.data[i+2] == OVERLAY) {
+              // If the current shadow pixel is to be overlayed, copy it over to
+              // our canvas' pixel data
+
+              if(pixels.data[i] > 200){
+                    pixelData.data[i] = patten_colors[touched - 1][0];
+                    pixelData.data[i+1] = patten_colors[touched - 1][1];
+                    pixelData.data[i+2] = patten_colors[touched - 1][2];
+              }
+          }
+      }
+
+      // And now, paint our pixels array back to the canvas.
+      shadowContext.putImageData(pixelData, 0, 0);
+  }
+
   setTimeout(renderShadow, 0);
 }
 
@@ -326,9 +390,9 @@ function getShadowData() {
         
         if (distance >= SHADOW_THRESHOLD) {
             // foreground, show shadow
-            pixelData.data[i] = color[0];
-            pixelData.data[i+1] = color[1];
-            pixelData.data[i+2] = color[2];
+            pixelData.data[i] = 0;
+            pixelData.data[i+1] = 0;
+            pixelData.data[i+2] = 0;
 
             if(temp_touched == 0){
                 temp_touched = checkTouched(i);
@@ -348,18 +412,18 @@ function getShadowData() {
     }
 
     if(temp_touched != touched){
-        $("#touch_display").text("Touching square "+temp_touched);
+        //$("#touch_display").text("Touching square "+temp_touched);
         touched = temp_touched;
 
         switch(temp_touched){
-            case 1: noteD.play(); $('#note').text("note D!"); break;
-            case 2: noteE.play(); $('#note').text("note E!"); break;
-            case 3: noteF.play(); $('#note').text("note F!"); break;
-            case 4: noteG.play(); $('#note').text("note G!"); break;
-            case 5: noteA.play(); $('#note').text("note A!"); break;
-            case 6: noteB.play(); $('#note').text("note B!"); break;
-            case 7: noteC.play(); $('#note').text("note C!"); break;
-            case 8: noteDhigh.play(); $('#note').text("note D High!"); break;
+            case 1: noteD.play(); console.log("note D!"); break;
+            case 2: noteE.play(); console.log("note E!"); break;
+            case 3: noteF.play(); console.log("note F!"); break;
+            case 4: noteG.play(); console.log("note G!"); break;
+            case 5: noteA.play(); console.log("note A!"); break;
+            case 6: noteB.play(); console.log("note B!"); break;
+            case 7: noteC.play(); console.log("note C!"); break;
+            case 8: noteDhigh.play(); console.log("note D High!"); break;
             default: break;
         }
     }
