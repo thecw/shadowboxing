@@ -107,6 +107,10 @@ $(document).ready(function() {
             renderShadow();
         }
     });
+
+    $('#restart').click(function(){
+        setBackground();
+    });
 });
 
 /*
@@ -356,9 +360,16 @@ function renderShadow() {
               // our canvas' pixel data
 
               if(pixels.data[i] > 200){
-                    pixelData.data[i] = patten_colors[touched - 1][0];
-                    pixelData.data[i+1] = patten_colors[touched - 1][1];
-                    pixelData.data[i+2] = patten_colors[touched - 1][2];
+                    if(touched > 0){
+                        pixelData.data[i] = patten_colors[touched - 1][0];
+                        pixelData.data[i+1] = patten_colors[touched - 1][1];
+                        pixelData.data[i+2] = patten_colors[touched - 1][2];
+                    }
+                    else{
+                        pixelData.data[i] = patten_colors[0][0];
+                        pixelData.data[i+1] = patten_colors[0][1];
+                        pixelData.data[i+2] = patten_colors[0][2];
+                    }
               }
           }
       }
