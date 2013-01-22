@@ -51,7 +51,7 @@ var circles = [];
 //pattern image
 var pattern_image = null;
 var PATTERN_PATH = "media/dots1.png";
-var patten_colors = [[240, 9, 0], [240, 111, 20], [250, 241, 50], [122, 232, 85], [45, 226, 155], [82, 82, 228], [175, 32, 212]];
+var patten_colors = [[240, 9, 0], [240, 111, 20], [250, 241, 50], [122, 232, 85], [45, 226, 155], [48, 120, 230], [82, 82, 228], [175, 32, 212]];
 
 var OVERLAY  = 0;   // 0 = foreground, 255 = background
 var imageReady = false;
@@ -180,7 +180,14 @@ function initializeDOMElements() {
     document.getElementById('capture').appendChild(squareCanvas);
     squareContext = squareCanvas.getContext('2d');  
 
-
+    noteA.load();
+    noteB.load();
+    noteC.load();
+    noteD.load();
+    noteE.load();
+    noteF.load();
+    noteG.load();
+    noteDhigh.load();
 }
 
 /*
