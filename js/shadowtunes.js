@@ -435,25 +435,41 @@ function getShadowData() {
     if(temp_touched != touched){
         touched = temp_touched;
         //$('#touch_debug').text("Touched "+touched+"!");
-        if(current_sound!=null){
-            current_sound.pause();
-        }
+        // if(current_sound!=null){
+        //     current_sound.pause();
+        // }
         
         switch(temp_touched){
-            case 1: current_sound = noteD; console.log("note D!"); break;
-            case 2: current_sound = noteE; console.log("note E!"); break;
-            case 3: current_sound = noteF; console.log("note F!"); break;
-            case 4: current_sound = noteG; console.log("note G!"); break;
-            case 5: current_sound = noteA; console.log("note A!"); break;
-            case 6: current_sound = noteB; console.log("note B!"); break;
-            case 7: current_sound = noteC; console.log("note C!"); break;
-            case 8: current_sound = noteDhigh; console.log("note D High!"); break;
+            case 1: noteD.src = "audio/Dgood.mp3";
+                    noteD.play();
+                    console.log("note D!"); break;
+            case 2: noteE.src = "audio/Egood.mp3";
+                    noteE.play();
+                    console.log("note E!"); break;
+            case 3: noteF.src = "audio/FSharpGood.mp3";
+                    noteF.play();
+                    console.log("note F!"); break;
+            case 4: noteG.src = "audio/Ggood.mp3";
+                    noteG.play();
+                    console.log("note G!"); break;
+            case 5: noteA.src = "audio/Agood.mp3";
+                    noteA.play();
+                    console.log("note A!"); break;
+            case 6: noteB.src = "audio/Bgood.mp3";
+                    noteB.play();
+                    console.log("note B!"); break;
+            case 7: noteC.src = "audio/Cgood.mp3";
+                    noteC.play();
+                    console.log("note C!"); break;
+            case 8: noteDhigh.src = "audio/Dhighgood.mp3";
+                    noteDhigh.play();
+                    console.log("note D High!"); break;
             default: break;
         }
 
-        if(current_sound!=null){
-            current_sound.play();
-        }
+        // if(current_sound!=null){
+        //     current_sound.play();
+        // }
         
     }
     
